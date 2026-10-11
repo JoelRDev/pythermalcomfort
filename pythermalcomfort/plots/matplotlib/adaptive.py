@@ -645,8 +645,7 @@ class AdaptivePlot(BasePlot):
                     )
                 legend_artist = ax.legend(handles=handles, **lg_opts)
 
-            if grid:
-                ax.grid(True)
+            ax.grid(grid)
 
             if xlabel is _DEFAULT_XLABEL:
                 xlabel = self._cfg["xlabel"]
