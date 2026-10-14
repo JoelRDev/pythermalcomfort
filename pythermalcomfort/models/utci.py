@@ -66,8 +66,12 @@ def utci(
 
     Notes
     -----
-    The humidity limits follow the input checks in the `official UTCI program
-    <https://utci.org/resources/UTCI%20Program%20Code.zip>`_ (version a 0.002).
+    All four applicability limits applied when ``limit_inputs=True`` (air temperature,
+    ``tr - tdb``, wind speed and humidity) are the input checks of the official UTCI
+    program, ``UTCI_a002.f90`` (version a 0.002, October 2009), available at
+    https://utci.org/resources/UTCI%20Program%20Code.zip. That program accepts wind
+    speeds up to 30 m/s, but its documentation and input prompt give 17 m/s, the limit
+    used here.
     High relative humidity can exceed the vapour-pressure limit even when air
     temperature is within range. Setting ``limit_inputs=False`` permits polynomial
     extrapolation, which can produce unrealistic temperatures and stress categories.

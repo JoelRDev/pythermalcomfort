@@ -4,13 +4,32 @@ Changelog
 Unreleased
 ----------
 
-* Fixed ``utci()`` missing humidity applicability checks (#410). With
-  ``limit_inputs=True`` (the default), relative humidity outside 0–100 % or
-  water vapour pressure outside 0–5 kPa now produces NaN values and stress
-  categories with a warning. This prevents misleading polynomial extrapolation
-  in extreme humid heat. ``limit_inputs=False`` retains the original
-  extrapolation behavior, which is not validated physical output.
-
+* Fixed ``work_capacity_hothaps`` and ``work_capacity_dunne`` rejecting a
+  ``WorkIntensity`` member (e.g. ``WorkIntensity.MODERATE``) as ``work_intensity`` with
+  "must be one of", while the same value as a string worked
+  (`#470 <https://github.com/pythermalcomfort/pythermalcomfort/issues/470>`_).
+* Internal calls between package functions now pass arguments by keyword, so two
+  same-typed arguments (e.g. ``tdb`` and ``tr``) cannot be swapped silently. A new test
+  checks every call in the package for this. The ``pmv_e`` and ``ankle_draft``
+  docstring examples now use keyword arguments. Public function signatures and results
+  are unchanged
+  (`#441 <https://github.com/pythermalcomfort/pythermalcomfort/issues/441>`_).
+* Fixed the ``heat_index_lu`` docstring example, which showed 25.9 instead of the 25.0
+  the call returns, and updated the Lu and Romps reference to the published 2022 paper
+  (`#257 <https://github.com/pythermalcomfort/pythermalcomfort/issues/257>`_).
+* Fixed ``JOS3`` initialization for low metabolic rates by allowing its internal
+  neutral-temperature search outside ISO 7730's comfort applicability limits. This
+  prevents discontinuous or NaN core and skin set points and resulting NaN simulations.
+  Previously affected set points change; the public ``pmv_ppd_iso()`` applicability
+  limits remain unchanged
+  (`#435 <https://github.com/pythermalcomfort/pythermalcomfort/issues/435>`_).
+* Fixed ``utci()`` missing humidity applicability checks. With ``limit_inputs=True``
+  (the default), relative humidity outside 0-100 % or water vapour pressure outside
+  0-5 kPa now gives NaN values and stress categories with a warning, instead of
+  misleading polynomial extrapolation in extreme humid heat (e.g. -326 °C at 50 °C and
+  100 % RH). These limits match the input checks of the official UTCI program.
+  ``limit_inputs=False`` keeps the previous values
+  (`#410 <https://github.com/pythermalcomfort/pythermalcomfort/issues/410>`_).
 * Fixed the ``solar_gain`` docstring example, which showed ``erf`` 42.9 and
   ``delta_mrt`` 10.3 instead of the 43.3 and 10.4 the call returns
   (`#449 <https://github.com/pythermalcomfort/pythermalcomfort/issues/449>`_).
