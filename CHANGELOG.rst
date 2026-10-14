@@ -23,6 +23,13 @@ Unreleased
   Previously affected set points change; the public ``pmv_ppd_iso()`` applicability
   limits remain unchanged
   (`#435 <https://github.com/pythermalcomfort/pythermalcomfort/issues/435>`_).
+* Fixed ``utci()`` missing humidity applicability checks. With ``limit_inputs=True``
+  (the default), relative humidity outside 0-100 % or water vapour pressure outside
+  0-5 kPa now gives NaN values and stress categories with a warning, instead of
+  misleading polynomial extrapolation in extreme humid heat (e.g. -326 °C at 50 °C and
+  100 % RH). These limits match the input checks of the official UTCI program.
+  ``limit_inputs=False`` keeps the previous values
+  (`#410 <https://github.com/pythermalcomfort/pythermalcomfort/issues/410>`_).
 * Fixed the ``solar_gain`` docstring example, which showed ``erf`` 42.9 and
   ``delta_mrt`` 10.3 instead of the 43.3 and 10.4 the call returns
   (`#449 <https://github.com/pythermalcomfort/pythermalcomfort/issues/449>`_).
