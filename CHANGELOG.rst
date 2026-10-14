@@ -4,6 +4,11 @@ Changelog
 Unreleased
 ----------
 
+* ``setuptools`` is no longer an install requirement: pythermalcomfort only uses it to
+  build the package, not at runtime. Installing pythermalcomfort no longer pins or
+  upgrades it. Raised the docs-build minimums flagged by Snyk to ``mistune>=3.3.3``,
+  ``soupsieve>=2.9.2`` and ``tornado>=6.5.2``
+  (`#379 <https://github.com/pythermalcomfort/pythermalcomfort/issues/379>`_).
 * Fixed ``work_capacity_hothaps`` and ``work_capacity_dunne`` rejecting a
   ``WorkIntensity`` member (e.g. ``WorkIntensity.MODERATE``) as ``work_intensity`` with
   "must be one of", while the same value as a string worked
