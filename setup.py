@@ -30,7 +30,7 @@ def read(*names: str, encoding: str = "utf8") -> str:
 
 setup(
     name="pythermalcomfort",
-    version="4.6.1",
+    version="4.6.2",
     license="MIT",
     description=(
         "pythermalcomfort is a comprehensive toolkit for calculating "
@@ -102,8 +102,7 @@ setup(
     install_requires=[
         "scipy",
         "numba",
-        "numpy>=1.21,<2.3",
-        "setuptools",
+        "numpy>=1.21",
     ],
     extras_require={
         "dev": [
