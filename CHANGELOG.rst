@@ -11,6 +11,11 @@ Unreleased
   now returns NaN for running mean outdoor temperatures above 30 °C (EN 16798-1),
   as its docstring already stated, instead of the ASHRAE 55 limit of 33.5 °C. The
   default x-axis range of ``AdaptivePlot`` for ``adaptive_en`` is now 10-30 °C.
+* Added an example to the ``AdaptivePlot`` notebook that computes the running mean
+  outdoor temperature (EN 16798) and the prevailing mean outdoor air temperature
+  (ASHRAE 55) from hourly outdoor temperatures with
+  ``running_mean_outdoor_temperature`` and overlays hourly indoor temperatures on
+  both charts (`#457 <https://github.com/pythermalcomfort/pythermalcomfort/issues/457>`_).
 
 4.6.2 (2026-10-15)
 ------------------
@@ -58,11 +63,6 @@ Unreleased
   The ``brentq`` threshold solvers now call the PHS scalar kernel directly instead of
   the public ``phs()``, skipping its input validation and the ``numba`` parallel array
   dispatch on every solver iteration. Results are unchanged.
-* Added an example to the ``AdaptivePlot`` notebook that computes the running mean
-  outdoor temperature (EN 16798) and the prevailing mean outdoor air temperature
-  (ASHRAE 55) from hourly outdoor temperatures with
-  ``running_mean_outdoor_temperature`` and overlays hourly indoor temperatures on
-  both charts (`#457 <https://github.com/pythermalcomfort/pythermalcomfort/issues/457>`_).
 
 4.6.1 (2026-10-06)
 ------------------
