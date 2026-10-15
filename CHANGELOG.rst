@@ -4,6 +4,10 @@ Changelog
 Unreleased
 ----------
 
+* Removed the ``numpy<2.3`` upper bound from the install requirements. numba already
+  pins the numpy versions it supports, so pythermalcomfort now accepts the same range.
+  Installing it no longer downgrades numpy 2.3 or later
+  (`#479 <https://github.com/pythermalcomfort/pythermalcomfort/issues/479>`_).
 * ``setuptools`` is no longer an install requirement: pythermalcomfort only uses it to
   build the package, not at runtime. Installing pythermalcomfort no longer pins or
   upgrades it. Raised the docs-build minimums flagged by Snyk to ``mistune>=3.3.3``,
