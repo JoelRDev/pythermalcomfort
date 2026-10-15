@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+4.6.2 (2026-10-15)
+------------------
 
 * Removed the ``numpy<2.3`` upper bound from the install requirements. numba already
   pins the numpy versions it supports, so pythermalcomfort now accepts the same range.
