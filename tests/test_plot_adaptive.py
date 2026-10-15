@@ -279,6 +279,46 @@ def test_ashrae_plot_returns_result() -> None:
     assert isinstance(result.fig, Figure)
 
 
+def test_ashrae_plot_hides_grid_by_default() -> None:
+    result = AdaptivePlot(adaptive_ashrae).plot()
+    gridlines = [*result.ax.get_xgridlines(), *result.ax.get_ygridlines()]
+    assert not any(line.get_visible() for line in gridlines)
+
+
+def test_ashrae_plot_grid_can_be_enabled() -> None:
+    result = AdaptivePlot(adaptive_ashrae).plot(grid=True)
+    gridlines = [*result.ax.get_xgridlines(), *result.ax.get_ygridlines()]
+    assert gridlines
+    assert all(line.get_visible() for line in gridlines)
+
+
+def test_ashrae_plot_hides_preexisting_grid_by_default() -> None:
+    _, ax = plt.subplots()
+    ax.grid(True)
+
+    result = AdaptivePlot(adaptive_ashrae).plot(ax=ax)
+
+    gridlines = [*result.ax.get_xgridlines(), *result.ax.get_ygridlines()]
+    assert gridlines
+    assert not any(line.get_visible() for line in gridlines)
+
+
+def test_ashrae_plot_hides_preexisting_minor_grid_by_default() -> None:
+    _, ax = plt.subplots()
+    ax.minorticks_on()
+    ax.grid(True, which="minor")
+
+    result = AdaptivePlot(adaptive_ashrae).plot(ax=ax)
+
+    gridlines = [
+        tick.gridline
+        for axis in (result.ax.xaxis, result.ax.yaxis)
+        for tick in axis.get_minor_ticks()
+    ]
+    assert gridlines
+    assert not any(line.get_visible() for line in gridlines)
+
+
 def test_ashrae_plot_default_fills() -> None:
     result = AdaptivePlot(adaptive_ashrae).plot()
     assert len(result.fills) == 2  # 80% and 90%

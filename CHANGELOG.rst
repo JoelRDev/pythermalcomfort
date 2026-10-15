@@ -1,6 +1,13 @@
 Changelog
 =========
 
+Unreleased
+----------
+
+* ``AdaptivePlot.plot()`` now hides background grid lines by default. Pass
+  ``grid=True`` to display them (`#433
+  <https://github.com/pythermalcomfort/pythermalcomfort/issues/433>`_).
+
 4.6.2 (2026-10-15)
 ------------------
 
