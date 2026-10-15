@@ -19,6 +19,11 @@ Unreleased
   (ASHRAE 55) from hourly outdoor temperatures with
   ``running_mean_outdoor_temperature`` and overlays hourly indoor temperatures on
   both charts (`#457 <https://github.com/pythermalcomfort/pythermalcomfort/issues/457>`_).
+* Fixed ``solar_gain`` for ``posture="supine"``: the floor-reflected term used the
+  transposed (body-relative) altitude instead of the solar altitude. The transposed
+  angles are now used only for the projected area factor lookup, which matches the
+  CBE Thermal Comfort Tool. Supine ``erf`` and ``delta_mrt`` values change
+  (`#438 <https://github.com/pythermalcomfort/pythermalcomfort/pull/438>`_).
 
 4.6.2 (2026-10-15)
 ------------------
