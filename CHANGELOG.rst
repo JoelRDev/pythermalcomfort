@@ -1,8 +1,52 @@
 Changelog
 =========
 
-Unreleased
-----------
+4.6.2 (2026-10-15)
+------------------
+
+* Removed the ``numpy<2.3`` upper bound from the install requirements. numba already
+  pins the numpy versions it supports, so pythermalcomfort now accepts the same range.
+  Installing it no longer downgrades numpy 2.3 or later
+  (`#479 <https://github.com/pythermalcomfort/pythermalcomfort/issues/479>`_).
+* ``setuptools`` is no longer an install requirement: pythermalcomfort only uses it to
+  build the package, not at runtime. Installing pythermalcomfort no longer pins or
+  upgrades it. Raised the docs-build minimums flagged by Snyk to ``mistune>=3.3.3``,
+  ``soupsieve>=2.9.2`` and ``tornado>=6.5.2``
+  (`#379 <https://github.com/pythermalcomfort/pythermalcomfort/issues/379>`_).
+* Fixed ``work_capacity_hothaps`` and ``work_capacity_dunne`` rejecting a
+  ``WorkIntensity`` member (e.g. ``WorkIntensity.MODERATE``) as ``work_intensity`` with
+  "must be one of", while the same value as a string worked
+  (`#470 <https://github.com/pythermalcomfort/pythermalcomfort/issues/470>`_).
+* Internal calls between package functions now pass arguments by keyword, so two
+  same-typed arguments (e.g. ``tdb`` and ``tr``) cannot be swapped silently. A new test
+  checks every call in the package for this. The ``pmv_e`` and ``ankle_draft``
+  docstring examples now use keyword arguments. Public function signatures and results
+  are unchanged
+  (`#441 <https://github.com/pythermalcomfort/pythermalcomfort/issues/441>`_).
+* Fixed the ``heat_index_lu`` docstring example, which showed 25.9 instead of the 25.0
+  the call returns, and updated the Lu and Romps reference to the published 2022 paper
+  (`#257 <https://github.com/pythermalcomfort/pythermalcomfort/issues/257>`_).
+* Fixed ``JOS3`` initialization for low metabolic rates by allowing its internal
+  neutral-temperature search outside ISO 7730's comfort applicability limits. This
+  prevents discontinuous or NaN core and skin set points and resulting NaN simulations.
+  Previously affected set points change; the public ``pmv_ppd_iso()`` applicability
+  limits remain unchanged
+  (`#435 <https://github.com/pythermalcomfort/pythermalcomfort/issues/435>`_).
+* Fixed ``utci()`` missing humidity applicability checks. With ``limit_inputs=True``
+  (the default), relative humidity outside 0-100 % or water vapour pressure outside
+  0-5 kPa now gives NaN values and stress categories with a warning, instead of
+  misleading polynomial extrapolation in extreme humid heat (e.g. -326 °C at 50 °C and
+  100 % RH). These limits match the input checks of the official UTCI program.
+  ``limit_inputs=False`` keeps the previous values
+  (`#410 <https://github.com/pythermalcomfort/pythermalcomfort/issues/410>`_).
+* Fixed the ``solar_gain`` docstring example, which showed ``erf`` 42.9 and
+  ``delta_mrt`` 10.3 instead of the 43.3 and 10.4 the call returns
+  (`#449 <https://github.com/pythermalcomfort/pythermalcomfort/issues/449>`_).
+* Sped up ``sports_heat_stress_risk`` by roughly 3-9x (depending on the sport's
+  duration) (`#396 <https://github.com/pythermalcomfort/pythermalcomfort/issues/396>`_).
+  The ``brentq`` threshold solvers now call the PHS scalar kernel directly instead of
+  the public ``phs()``, skipping its input validation and the ``numba`` parallel array
+  dispatch on every solver iteration. Results are unchanged.
 
 4.6.1 (2026-10-06)
 ------------------
