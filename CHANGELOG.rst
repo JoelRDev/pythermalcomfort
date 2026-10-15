@@ -4,6 +4,9 @@ Changelog
 Unreleased
 ----------
 
+* Dropped support for Python 3.10, which reached end of life in October 2026.
+  pythermalcomfort now requires Python 3.11 or later. Users on Python 3.10 keep
+  getting 4.6.2 from pip.
 * ``AdaptivePlot.plot()`` now hides background grid lines by default. Pass
   ``grid=True`` to display them (`#433
   <https://github.com/pythermalcomfort/pythermalcomfort/issues/433>`_).
