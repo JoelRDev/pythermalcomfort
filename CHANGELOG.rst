@@ -7,6 +7,10 @@ Unreleased
 * ``AdaptivePlot.plot()`` now hides background grid lines by default. Pass
   ``grid=True`` to display them (`#433
   <https://github.com/pythermalcomfort/pythermalcomfort/issues/433>`_).
+* Fixed the applicability limit of ``adaptive_en``: with ``limit_inputs=True`` it
+  now returns NaN for running mean outdoor temperatures above 30 °C (EN 16798-1),
+  as its docstring already stated, instead of the ASHRAE 55 limit of 33.5 °C. The
+  default x-axis range of ``AdaptivePlot`` for ``adaptive_en`` is now 10-30 °C.
 
 4.6.2 (2026-10-15)
 ------------------
