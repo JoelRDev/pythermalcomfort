@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 from pythermalcomfort.models import (
     set_tmp,
@@ -45,3 +46,29 @@ def test_set_npnan() -> None:
         ).set,
         [np.nan, np.nan, np.nan, np.nan, np.nan, np.nan],
     )
+
+
+@pytest.mark.xfail(
+    strict=True,
+    reason="#489: p_rsw = w_max / 0.94 at the w_max cap makes the evaporation jump by 0.06 * e_max",
+)
+def test_set_continuous_at_critical_wettedness() -> None:
+    """SET should be continuous when skin wettedness reaches w_max.
+
+    At the cap, p_rsw must invert w = 0.06 + 0.94 * p_rsw, i.e. (w_max - 0.06) / 0.94 as in
+    Gagge et al. (1986).
+    """
+    t = np.round(np.arange(32.5, 34.0, 0.001), 3)
+    result = set_tmp(
+        tdb=t,
+        tr=t,
+        v=0.1,
+        rh=70,
+        met=1.1,
+        clo=0.5,
+        round_output=False,
+        limit_inputs=False,
+    ).set
+    max_step = np.max(np.abs(np.diff(result)))
+    assert max_step < 0.01
+    assert np.all(np.diff(result) > 0)  # monotonic, so cooling_effect has a single root
