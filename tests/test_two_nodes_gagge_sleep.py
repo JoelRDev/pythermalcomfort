@@ -263,10 +263,6 @@ def test_non_positive_ltime_raises_value_error() -> None:
         two_nodes_gagge_sleep(18, 18, 0.05, 50, 1.4, 1.76, ltime=-1)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#489: p_rsw = w_max / 0.94 at the w_max cap makes the evaporation jump by 0.06 * e_max",
-)
 def test_two_nodes_gagge_sleep_continuous_at_critical_wettedness() -> None:
     """SET should be continuous when skin wettedness reaches w_max.
 

@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from pythermalcomfort.models import (
     set_tmp,
@@ -48,10 +47,6 @@ def test_set_npnan() -> None:
     )
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="#489: p_rsw = w_max / 0.94 at the w_max cap makes the evaporation jump by 0.06 * e_max",
-)
 def test_set_continuous_at_critical_wettedness() -> None:
     """SET should be continuous when skin wettedness reaches w_max.
 

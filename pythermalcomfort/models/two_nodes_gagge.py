@@ -402,7 +402,7 @@ def _gagge_two_nodes_optimized(
         e_diff = w * e_max - e_rsw  # vapor diffusion through skin
         if w > w_max:
             w = w_max
-            p_rsw = w_max / 0.94
+            p_rsw = (w_max - 0.06) / 0.94
             e_rsw = p_rsw * e_max
             e_diff = 0.06 * (1.0 - p_rsw) * e_max
         if e_max < 0:
