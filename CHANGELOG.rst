@@ -4,6 +4,12 @@ Changelog
 Unreleased
 ----------
 
+* ``JOS3.t_core`` now has a setter, like ``t_skin``: ``model.t_core = 38.0`` sets the
+  core temperatures of all 17 segments (a scalar, an array of 17 values, or a dict of
+  body parts). Before, it raised ``AttributeError``. The ``t_core`` and ``t_skin``
+  docstrings now say that the returned arrays are copies, so ``model.t_core[:] = x``
+  does not change the model (`#481
+  <https://github.com/pythermalcomfort/pythermalcomfort/issues/481>`_).
 * Dropped support for Python 3.10, which reached end of life in October 2026.
   pythermalcomfort now requires Python 3.11 or later. Users on Python 3.10 keep
   getting 4.6.2 from pip.
