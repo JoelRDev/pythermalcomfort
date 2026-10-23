@@ -2,6 +2,7 @@
 # The package metadata and what users install still come from setup.py and setup.cfg.
 [dependency-groups]
 dev = [
+    "pythermalcomfort",  # the repo itself, installed in editable mode (see [tool.uv.sources])
     "scipy",
     "numba",
     "numpy",
@@ -24,3 +25,6 @@ dev = [
     "setuptools>=78.1.1",  # CVE-2025-47273: fixed in 78.1.1+
     "pandas",
 ]
+
+[tool.uv.sources]
+pythermalcomfort = { path = ".", editable = true }
