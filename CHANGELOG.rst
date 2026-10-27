@@ -15,8 +15,12 @@ Unreleased
   rates. For example, ``cooling_effect`` returns 5.11 °C instead of 5.14 °C at
   35 °C, 90 % RH, 1.5 m/s, 2.5 met and 0.2 clo, and ``disc`` is now exactly 4.7 at
   the cap instead of 5.3-6.0.
-  ``two_nodes_gagge`` now rejects ``w_max`` values below 0.06 or above 1, because
-  below 0.06 the sweating rate at the cap would be negative (`#489
+  ``pmv_ppd_ashrae`` (through the cooling effect) and ``use_fans_heatwaves`` results
+  change in the same conditions.
+  ``two_nodes_gagge`` now rejects a user-supplied ``w_max`` of 0.06 or less, above 1,
+  NaN or ``True``. Below 0.06 the sweating rate at the cap would be negative, and at
+  exactly 0.06 ``disc`` divided by zero. ``False`` and ``0`` still mean that the model
+  computes ``w_max`` from ``v`` and ``clo`` (`#489
   <https://github.com/pythermalcomfort/pythermalcomfort/issues/489>`_).
 * ``JOS3.t_core`` now has a setter, like ``t_skin``: ``model.t_core = 38.0`` sets the
   core temperatures of all 17 segments (a scalar, an array of 17 values, or a dict of
