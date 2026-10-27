@@ -1,8 +1,8 @@
 Changelog
 =========
 
-Unreleased
-----------
+4.7.0 (2026-10-27)
+------------------
 
 * Fixed a discontinuity in SET from ``two_nodes_gagge``, ``set_tmp`` and
   ``two_nodes_gagge_sleep``. When skin wettedness reached its maximum ``w_max``, the
