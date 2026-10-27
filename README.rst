@@ -157,7 +157,7 @@ Common commands
     # fix linting/formatting
     uv run ruff check --fix
     uv run ruff format
-    uv run docformatter --in-place --wrap-summaries 88 --wrap-descriptions 88 pythermalcomfort/*.py
+    uv run docformatter -r -i --wrap-summaries 88 --wrap-descriptions 88 pythermalcomfort
 
     # commit and push
     git add .
