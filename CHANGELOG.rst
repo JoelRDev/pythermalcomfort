@@ -18,9 +18,10 @@ Changelog
   ``pmv_ppd_ashrae`` (through the cooling effect) and ``use_fans_heatwaves`` results
   change in the same conditions.
   ``two_nodes_gagge`` now rejects a user-supplied ``w_max`` of 0.06 or less, above 1,
-  NaN or ``True``. Below 0.06 the sweating rate at the cap would be negative, and at
-  exactly 0.06 ``disc`` divided by zero. ``False`` and ``0`` still mean that the model
-  computes ``w_max`` from ``v`` and ``clo`` (`#489
+  NaN or ``True``, also inside a list such as ``[True, 0.5]``. Below 0.06 the
+  sweating rate at the cap would be negative, and at exactly 0.06 ``disc`` divided by
+  zero. ``False`` and ``0`` still mean that the model computes ``w_max`` from ``v``
+  and ``clo`` (`#489
   <https://github.com/pythermalcomfort/pythermalcomfort/issues/489>`_).
 * Fixed the IP cooling effect conversion to use the Celsius-to-Fahrenheit
   temperature difference factor of 1.8 (`#473

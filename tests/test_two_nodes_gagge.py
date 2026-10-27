@@ -23,7 +23,7 @@ def test_two_nodes(get_test_url, retrieve_data) -> None:
 
 
 @pytest.mark.parametrize(
-    "w_max", [0.01, 0.06, 1.2, [0.5, 0.05], np.nan, [0.5, np.nan], True]
+    "w_max", [0.01, 0.06, 1.2, [0.5, 0.05], np.nan, [0.5, np.nan], True, [True, 0.5]]
 )
 def test_two_nodes_rejects_w_max_out_of_range(w_max) -> None:
     """Reject w_max that would break the wettedness cap (#489).
