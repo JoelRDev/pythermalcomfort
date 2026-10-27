@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing import Self
 else:
     Self = Any
 
@@ -56,6 +56,7 @@ class BasePlot(ABC):
         *,
         ax: Axes | None = None,
         title: str | None = None,
+        font_family: str | Sequence[str] | None = None,
     ) -> BasePlotResult:
         """Render the plot.
 
@@ -66,6 +67,10 @@ class BasePlot(ABC):
             created.
         title : str, optional
             Optional chart title.
+        font_family : str or sequence of str, optional
+            Font family for this plot. If omitted, Matplotlib's current
+            ``font.family`` setting is used. Existing annotations on a
+            caller-supplied ``ax`` are not modified.
 
         Returns
         -------
@@ -312,16 +317,28 @@ class GridBasePlot(BasePlot):
         self._fixed_values.update(kwargs)
         return self
 
-    def _validate_plot_inputs(self, *, fill_kws: Mapping[str, Any] | None) -> None:
-        """Validate plot preconditions and plotting keyword constraints."""
-        if self._x_axis is None or self._y_axis is None:
+    def _require_axes(self) -> tuple[_AxisConfig, _AxisConfig]:
+        """Return configured axes or raise the missing-axis error."""
+        x_axis, y_axis = self._x_axis, self._y_axis
+        if x_axis is None or y_axis is None:
             raise ValueError(
                 "Axes are not set. Call set_x_axis(...) and set_y_axis(...) first."
             )
-        if self._region_config is None:
+        return x_axis, y_axis
+
+    def _require_region_config(self) -> RegionConfig:
+        """Return configured regions or raise the missing-region error."""
+        region_config = self._region_config
+        if region_config is None:
             raise ValueError(
                 "Regions are not set. Call set_regions(...) before plot(...)."
             )
+        return region_config
+
+    def _validate_plot_inputs(self, *, fill_kws: Mapping[str, Any] | None) -> None:
+        """Validate plot preconditions and plotting keyword constraints."""
+        self._require_axes()
+        self._require_region_config()
 
         disallowed_fill_keys = {"color", "facecolor"}
         if fill_kws is not None and disallowed_fill_keys.intersection(fill_kws):
@@ -362,9 +379,10 @@ class GridBasePlot(BasePlot):
 
     def _build_call_kwargs(self, x_value: Any, y_value: Any) -> dict[str, Any]:
         """Build validated kwargs for a model evaluation call."""
+        x_axis, y_axis = self._require_axes()
         call_kwargs: dict[str, Any] = dict(self._fixed_values)
-        call_kwargs[self._x_axis.name] = x_value
-        call_kwargs[self._y_axis.name] = y_value
+        call_kwargs[x_axis.name] = x_value
+        call_kwargs[y_axis.name] = y_value
         call_kwargs = self._prefer_unrounded_output(call_kwargs)
         call_kwargs = _apply_default_links_to_kwargs(
             call_kwargs,

@@ -30,9 +30,11 @@ from pythermalcomfort.models.adaptive_en import INTERCEPT as _EN_INTERCEPT
 from pythermalcomfort.models.adaptive_en import SLOPE as _EN_SLOPE
 from pythermalcomfort.plots.matplotlib._base import BasePlot
 from pythermalcomfort.plots.matplotlib._shared import (
-    _PYTHERMALCOMFORT_RC,
     BasePlotResult,
+    _apply_font_family,
+    _caller_texts,
     _limit_labeled_ticks,
+    _plot_rc,
     _PlotDefaults,
 )
 
@@ -74,7 +76,7 @@ _STANDARD_CONFIGS: dict[str, dict[str, Any]] = {
         "xlabel": "Running Mean Outdoor Temperature [°C]",
         "slope": _EN_SLOPE,
         "intercept": _EN_INTERCEPT,
-        "t_rm_range": (10.0, 33.5),
+        "t_rm_range": (10.0, 30.0),
         "bands": [
             _BandSpec("cat_iii", -5.0, 4.0, "Category III", "#C5E0B4"),
             _BandSpec("cat_ii", -4.0, 3.0, "Category II", "#A9D18E"),
@@ -486,11 +488,12 @@ class AdaptivePlot(BasePlot):
         xlabel: str | None | Literal[_Default.XLABEL] = _DEFAULT_XLABEL,
         ylabel: str | None = "Operative Temperature [°C]",
         legend: bool = True,
-        grid: bool = True,
+        grid: bool = False,
         show_center_line: bool = True,
         center_line_kws: Mapping[str, Any] | None = None,
         fill_kws: Mapping[str, Any] | None = None,
         legend_kws: Mapping[str, Any] | None = None,
+        font_family: str | Sequence[str] | None = None,
     ) -> AdaptivePlotResult:
         """Render the adaptive comfort chart.
 
@@ -509,7 +512,8 @@ class AdaptivePlot(BasePlot):
         legend : bool
             Whether to draw a legend.
         grid : bool
-            Whether to display background grid lines.
+            Whether to display background grid lines. Grid lines are hidden by
+            default; pass ``True`` to show them.
         show_center_line : bool
             Whether to draw the comfort temperature center line.
         center_line_kws : dict, optional
@@ -519,13 +523,18 @@ class AdaptivePlot(BasePlot):
             colors are set via :meth:`set_regions`.
         legend_kws : dict, optional
             Overrides for the legend (``ax.legend``).
+        font_family : str or sequence of str, optional
+            Font family for this plot. If omitted, Matplotlib's current
+            ``font.family`` setting is used. Existing annotations on a
+            caller-supplied ``ax`` are not modified.
 
         Returns
         -------
         AdaptivePlotResult
             Result with figure, axes, and artists.
         """
-        with mpl.rc_context(_PYTHERMALCOMFORT_RC):
+        with mpl.rc_context(_plot_rc(font_family)):
+            existing_annotations = _caller_texts(ax)
             bands = self._resolve_bands()
 
             if ax is None:
@@ -646,6 +655,8 @@ class AdaptivePlot(BasePlot):
 
             if grid:
                 ax.grid(True)
+            else:
+                ax.grid(False, which="both")
 
             if xlabel is _DEFAULT_XLABEL:
                 xlabel = self._cfg["xlabel"]
@@ -662,6 +673,7 @@ class AdaptivePlot(BasePlot):
             if self._y_range is not None:
                 ax.set_ylim(self._y_range)
             _limit_labeled_ticks(ax)
+            _apply_font_family(ax, font_family, exclude=existing_annotations)
 
             return AdaptivePlotResult(
                 fig=fig,

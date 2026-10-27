@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import warnings
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 import numpy as np
@@ -12,7 +12,9 @@ from matplotlib.path import Path as MplPath
 
 from pythermalcomfort.plots.matplotlib._shared import (
     _apply_default_links_to_kwargs,
+    _apply_font_family,
     _AxisConfig,
+    _caller_texts,
     _extract_output_by_name,
     _parse_axis_range,
     _PlotDefaults,
@@ -283,13 +285,14 @@ class PsychrometricPlot(ThresholdPlot):
         via :meth:`set_params`, that value is used instead.  Otherwise the
         x-axis values serve as an approximation (accurate when ``tr ≈ tdb``).
         """
+        x_axis, _ = self._require_axes()
         x_flat = np.asarray(x).ravel()
         # The axis, and therefore the grid, is in g/kg dry air; hr_to_rh below
         # expects kg/kg dry air.
         y_flat = np.asarray(y).ravel() / _G_PER_KG
 
         # Determine which temperature to use for the hr → rh conversion.
-        if self._x_axis.name == "tdb":
+        if x_axis.name == "tdb":
             tdb_for_psat = x_flat
         elif "tdb" in self._fixed_values:
             tdb_for_psat = np.full_like(x_flat, float(self._fixed_values["tdb"]))
@@ -306,7 +309,7 @@ class PsychrometricPlot(ThresholdPlot):
         rh_safe = np.clip(rh_flat, 0.0, 100.0)
 
         grid_kwargs: dict[str, Any] = dict(self._fixed_values)
-        grid_kwargs[self._x_axis.name] = x_flat
+        grid_kwargs[x_axis.name] = x_flat
         grid_kwargs["rh"] = rh_safe
         grid_kwargs = self._prefer_unrounded_output(grid_kwargs)
         grid_kwargs = _apply_default_links_to_kwargs(
@@ -355,6 +358,7 @@ class PsychrometricPlot(ThresholdPlot):
         fill_kws: Mapping[str, Any] | None = None,
         legend_kws: Mapping[str, Any] | None = None,
         invalid_color: str = _PlotDefaults.color_out_of_model,
+        font_family: str | Sequence[str] | None = None,
     ) -> ThresholdPlotResult:
         """Render the psychrometric chart with threshold regions and RH curves.
 
@@ -389,12 +393,17 @@ class PsychrometricPlot(ThresholdPlot):
             Keyword overrides forwarded to ``ax.legend``.
         invalid_color : str
             Color used for out-of-model/invalid areas.
+        font_family : str or sequence of str, optional
+            Font family for this plot. If omitted, Matplotlib's current
+            ``font.family`` setting is used. Existing annotations on a
+            caller-supplied ``ax`` are not modified.
 
         Returns
         -------
         ThresholdPlotResult
             Result with axis and artist handles.
         """
+        existing_annotations = _caller_texts(ax)
         result = super().plot(
             ax=ax,
             title=title,
@@ -404,12 +413,14 @@ class PsychrometricPlot(ThresholdPlot):
             fill_kws=fill_kws,
             legend_kws=legend_kws,
             invalid_color=invalid_color,
+            font_family=font_family,
         )
         ax = result.ax
+        x_axis, y_axis = self._require_axes()
 
         t_dense = np.linspace(
-            self._x_axis.min_val,
-            self._x_axis.max_val,
+            x_axis.min_val,
+            x_axis.max_val,
             _PlotDefaults.Psychrometric.n_tdb_points,
         )
         # White fill masks the physically impossible RH > 100% region.
@@ -422,7 +433,7 @@ class PsychrometricPlot(ThresholdPlot):
         ax.fill_between(
             t_dense,
             hr_100,
-            self._y_axis.max_val,
+            y_axis.max_val,
             color="white",
             zorder=_PlotDefaults.Psychrometric.zorder_rh_mask,
             edgecolor="none",
@@ -432,9 +443,9 @@ class PsychrometricPlot(ThresholdPlot):
         # extend above the saturation curve.  The clip path is a closed polygon
         # tracing the bottom of the plot → saturation curve (right-to-left) → close.
         if result.lines:
-            x_min = self._x_axis.min_val
-            x_max = self._x_axis.max_val
-            y_min = self._y_axis.min_val
+            x_min = x_axis.min_val
+            x_max = x_axis.max_val
+            y_min = y_axis.min_val
             clip_x = np.concatenate([[x_min, x_max], t_dense[::-1]])
             clip_y = np.concatenate([[y_min, y_min], hr_100[::-1]])
             n = len(clip_x)
@@ -458,9 +469,7 @@ class PsychrometricPlot(ThresholdPlot):
             # Both bounds, not just the top: on an elevated y window the
             # samples below it still steered where the label went and how wide
             # a gap it cut, which blanked up to a third of the visible curve.
-            in_range = (hr_line >= self._y_axis.min_val) & (
-                hr_line <= self._y_axis.max_val
-            )
+            in_range = (hr_line >= y_axis.min_val) & (hr_line <= y_axis.max_val)
             if not in_range.any():
                 continue
             curve_t = t_dense[in_range]
@@ -499,7 +508,8 @@ class PsychrometricPlot(ThresholdPlot):
         # region fills autoscaled to, which is why the RH labels above compute
         # their rotation against the right transform.  Repeating it guards the
         # overlays drawn since, none of which currently autoscale.
-        ax.set_xlim(self._x_axis.min_val, self._x_axis.max_val)
-        ax.set_ylim(self._y_axis.min_val, self._y_axis.max_val)
+        ax.set_xlim(x_axis.min_val, x_axis.max_val)
+        ax.set_ylim(y_axis.min_val, y_axis.max_val)
+        _apply_font_family(ax, font_family, exclude=existing_annotations)
 
         return result

@@ -23,12 +23,14 @@ from pythermalcomfort.plots.matplotlib._boundaries import (
     solve_region_bands,
 )
 from pythermalcomfort.plots.matplotlib._shared import (
-    _PYTHERMALCOMFORT_RC,
     BasePlotResult,
     _apply_axes_style,
+    _apply_font_family,
     _AxisConfig,
+    _caller_texts,
     _configure_regions,
     _legend_anchor_y,
+    _plot_rc,
     _PlotDefaults,
     _title_y_above_legend,
 )
@@ -180,11 +182,10 @@ class ThresholdPlot(GridBasePlot):
             untouched: they mean the plot is misconfigured, not that the
             geometry is awkward.
         """
+        x_axis, y_axis = self._require_axes()
         for scan_axis in ("x", "y"):
             scan_config, row_config = (
-                (self._x_axis, self._y_axis)
-                if scan_axis == "x"
-                else (self._y_axis, self._x_axis)
+                (x_axis, y_axis) if scan_axis == "x" else (y_axis, x_axis)
             )
             scan = self._axis_samples(
                 scan_config, minimum=_PlotDefaults.Threshold.curve_min_scan_samples
@@ -233,7 +234,8 @@ class ThresholdPlot(GridBasePlot):
         invalid_color: str,
     ) -> tuple[list[PolyCollection], list[Line2D]]:
         """Fill the solved bands and draw their boundary curves."""
-        scan_config = self._x_axis if bands.scan_axis == "x" else self._y_axis
+        x_axis, y_axis = self._require_axes()
+        scan_config = x_axis if bands.scan_axis == "x" else y_axis
         scan_min, scan_max = scan_config.min_val, scan_config.max_val
         # fill_betweenx spans along x for each y; fill_between the other way.
         fill = ax.fill_betweenx if bands.scan_axis == "x" else ax.fill_between
@@ -301,6 +303,7 @@ class ThresholdPlot(GridBasePlot):
         fill_kws: Mapping[str, Any] | None = None,
         legend_kws: Mapping[str, Any] | None = None,
         invalid_color: str = _PlotDefaults.color_out_of_model,
+        font_family: str | Sequence[str] | None = None,
     ) -> ThresholdPlotResult:
         """Render threshold regions and their boundaries on a Matplotlib axis.
 
@@ -328,6 +331,10 @@ class ThresholdPlot(GridBasePlot):
             Keyword overrides forwarded to ``ax.legend``.
         invalid_color : str
             Color used for areas outside the model's applicability limits.
+        font_family : str or sequence of str, optional
+            Font family for this plot. If omitted, Matplotlib's current
+            ``font.family`` setting is used. Existing annotations on a
+            caller-supplied ``ax`` are not modified.
         Returns
         -------
         ThresholdPlotResult
@@ -347,11 +354,13 @@ class ThresholdPlot(GridBasePlot):
         sets how finely the boundary curves are sampled.  Both have floors, so
         omitting ``resolution`` gives a chart that is already smooth.
         """
-        with mpl.rc_context(_PYTHERMALCOMFORT_RC):
+        with mpl.rc_context(_plot_rc(font_family)):
+            existing_annotations = _caller_texts(ax)
             self._validate_plot_inputs(fill_kws=fill_kws)
             self._validate_invalid_color(invalid_color)
 
-            rc = self._region_config
+            x_axis, y_axis = self._require_axes()
+            rc = self._require_region_config()
 
             line_opts = dict(line_kws or {})
             line_opts.setdefault("color", _PlotDefaults.Threshold.line_color)
@@ -438,12 +447,13 @@ class ThresholdPlot(GridBasePlot):
                     ),
                 )
 
-            ax.set_xlim(self._x_axis.min_val, self._x_axis.max_val)
-            ax.set_ylim(self._y_axis.min_val, self._y_axis.max_val)
-            ax.set_xlabel(self._x_axis.name)
-            ax.set_ylabel(self._y_axis.name)
+            ax.set_xlim(x_axis.min_val, x_axis.max_val)
+            ax.set_ylim(y_axis.min_val, y_axis.max_val)
+            ax.set_xlabel(x_axis.name)
+            ax.set_ylabel(y_axis.name)
             if title is not None:
                 ax.set_title(title, y=title_y)
+            _apply_font_family(ax, font_family, exclude=existing_annotations)
 
             return ThresholdPlotResult(
                 fig=fig,
