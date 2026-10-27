@@ -194,6 +194,7 @@ is deferred to a major version.
 **Numba optimization**:
 - Performance-critical functions (e.g., UTCI) use `@vectorize` and `@jit` decorators
 - Allows element-wise operations without explicit Python loops
+- "Should we rewrite in Rust?" was benchmarked in 2026-10 and the answer was no: see `docs/contributing/performance.rst` before re-asking
 
 ### Key Module Interactions
 
